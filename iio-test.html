@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+</head>
+
+<body>
+    <script src="http://iio.js.org/iio.min.js"></script>
+    <script>
+        let Hello = function (app) {
+
+            app.set({
+                color: 'black'
+            });
+
+            app.create(app.center, 'Hello iio');
+
+            let w = 50;
+
+            for (let c = w / 2; c < app.width; c += w)
+                for (let r = w / 2; r < app.height; r += w) {
+
+                    let quad = new iio.Quad({
+                        pos: [r, c], // sets position to app center
+                        width: w, // sets width to 100px
+                        height: w, // defaults to width value if undefined
+                        color: iio.Color.random(),
+                        shrink: {
+                            speed: iio.random(.05, .2),
+                            // called when the square is too small to see. If no callback is provided, the object is removed from app
+                            callback: function (square) {
+                                square.width = square.height = w;
+                                square.color.randomize();
+                            }
+                        }
+                    })
+
+                    app.add(quad);
+                }
+
+            console.log(app.trueVs())
+
+            let image = iio.load('img/monster/snail.svg', function () {
+                app.add(new iio.Quad({
+                    img: image
+                }));
+            });
+        }
+
+        let app = iio.start(Hello);
+        // setTimeout(() => app.stop(), 3000)
+    </script>
+</body>
+
+</html>
