@@ -8,69 +8,56 @@ window.requestAnimFrame = (function () {
         };
 })();
 
-class Point {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
+// ------------------------------------------------------
 
-    clone() {
-        return new Point(this.x, this.y);
-    }
+// Param
+const WIDTH = window.innerWidth;
+const HEIGHT = window.innerHeight;
+
+// Audio
+let soundPath = 'sound/';
+let sounds = new Map();
+sounds.set('metalClick.ogg', new Audio(soundPath + 'metalClick.ogg'))
+sounds.set('footstep00.ogg', new Audio(soundPath + 'footstep00.ogg'))
+
+// canvas
+let db_canvas = document.createElement("canvas")
+let db_ctx = db_canvas.getContext("2d");
+let bg_canvas = document.createElement("canvas")
+let bg_ctx = bg_canvas.getContext("2d");
+let ef_canvas = document.createElement("canvas")
+let ef_ctx = ef_canvas.getContext("2d");
+let canvas = document.createElement("canvas")
+let ctx = canvas.getContext("2d");
+
+// resize
+db_canvas.width = WIDTH;
+db_canvas.height = HEIGHT;
+bg_canvas.width = WIDTH;
+bg_canvas.height = HEIGHT;
+ef_canvas.width = WIDTH;
+ef_canvas.height = HEIGHT;
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
+
+// Append
+let body = document.getElementsByTagName('body')[0];
+body.appendChild(bg_canvas);
+body.appendChild(ef_canvas);
+body.appendChild(canvas);
+body.appendChild(db_canvas);
+
+// let scene = new Scene(canvas, 26, 18, 2 * 10 * Math.PI / 360);
+let scene = new Scene(canvas, 26, 18, 2 * 5 * Math.PI / 360, [145, 10, 10, 10]);
+let camera = new Camera(0, 0, 1.0);
+
+/* -------------------------------------------- Sound -------------------------------------------- */
+
+function playSound(sound) {
+    sounds.get(sound).cloneNode().play(); // 在高速時能重疊撥放
 }
 
-class Rect {
-    constructor(x, y, w, h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-    }
-}
-
-class Area {
-    constructor(includes, excludes) {
-        this.includes = includes;
-        this.excludes = excludes;
-    }
-}
-
-class Camera {
-    constructor(x, y, zoom) {
-        this.x = x || 0;
-        this.y = y || 0;
-        this.zoom = zoom || 1.0;
-    }
-
-    view(p) {
-        return new Point(p.x - this.x, p.y - this.y);
-    }
-}
-
-class Scene {
-    constructor(canvas, col, row, theta, margin) {
-        this.canvas = canvas;
-        this.col = col;
-        this.row = row;
-        this.theta = theta;
-        this.margin = margin || [20, 0, 0, 0]; // Top, Right, Bottom, Left
-
-        let tanWidth = canvas.width - canvas.height * Math.tan(theta); // 傾斜
-        this.width = (tanWidth - this.margin[1] - this.margin[3]) / this.col;
-        this.height = (canvas.height - this.margin[0] - this.margin[2]) / this.row;
-    }
-
-    /**
-     * To-Do: 取得頂點 (目前是左上角)
-     */
-    lattice(p) {
-        let offsetH = Math.tan(this.theta) * this.canvas.height * (this.row - p.y) / this.row;
-        let px = this.margin[1] + offsetH + this.width * p.x;
-        let py = this.margin[0] + this.height * p.y;
-        return new Point(px, py);
-    }
-}
-
+/* -------------------------------------------- Draw -------------------------------------------- */
 function dynamicFitTextOnCanvas(ctx, text, fontface, desiredWidth) {
     let startFontsize = 200;
     return measureTextBinary(ctx, text, 0, startFontsize, fontface, desiredWidth)
@@ -105,33 +92,6 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     return this;
 }
 
-// ------------------------------------------------------
-
-// Param
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
-
-// Audio
-let audio1 = new Audio('sound/metalClick.ogg');
-let audio2 = new Audio('sound/footstep00.ogg');
-
-// canvas
-let bg_canvas = document.getElementById("bg_canvas");
-let bg_ctx = bg_canvas.getContext("2d");
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
-// resize
-bg_canvas.width = WIDTH;
-bg_canvas.height = HEIGHT;
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
-
-// let scene = new Scene(canvas, 26, 18, 2 * 10 * Math.PI / 360);
-let scene = new Scene(canvas, 26, 18, 2 * 5 * Math.PI / 360, [145, 10, 10, 10]);
-let camera = new Camera(0, 0, 1.0);
-
-
-/* -------------------------------------------- Draw -------------------------------------------- */
 
 function drawBG(ctx, img) {
     ctx.fillStyle = "rgba(255,255,255,0.75)";
@@ -451,6 +411,7 @@ function drawBuilding(ctx, scale, x, y, level, img, offsetH, offsetV, alpha) {
     }
 }
 
+
 //----------------------------------------------------------------------------
 
 /* Image */
@@ -490,6 +451,9 @@ imgSrcs.push('monster/dinosaur.svg')
 imgSrcs.push('monster/mummy.svg')
 imgSrcs.push('monster/yeti.png')
 
+imgSrcs.push('effect/explosion.svg')
+
+
 /*
  * -----------------------------------------------Test Data-----------------------------------------
  */
@@ -499,12 +463,6 @@ function randomPoint(rect) {
     let y = rect.y + Math.floor(Math.random() * rect.h);
     return new Point(x, y);
 }
-
-// function randomPoints(rect, num) {
-//     let array = [];
-//     for (let i = 0; i < num; i++) array.push(randomPoint(rect));
-//     return array;
-// }
 
 // 取得範圍內不重複的隨機座標
 let all = [];
@@ -560,34 +518,45 @@ for (let i = 0; i < 12; i++) {
 }
 
 /* Area */
-let a1 = new Area([new Rect(7, 0, 19, 5)], []);
-let a2 = new Area([new Rect(10, 11, 10, 7)], []);
-let a3 = new Area([new Rect(0, 0, 7, 10)], []);
-let a4 = new Area([new Rect(7, 5, 13, 6)], [new Rect(7, 10, 3, 1)]);
-let a5 = new Area([new Rect(20, 5, 6, 13)], []);
-let a6 = new Area([new Rect(7, 0, 19, 5)], [new Rect(20, 1, 3, 3)]);
-let a7 = new Area([new Rect(20, 1, 3, 3)], [])
+let a1 = new Area([new Rect(1, 0, 6, 5)], [new Rect(1, 1, 3, 2)]);
+let a2 = new Area([new Rect(8, 0, 5, 5)], []);
+let a3 = new Area([new Rect(14, 0, 5, 5)], []);
+let a4 = new Area([new Rect(20, 0, 6, 5)], [new Rect(21, 1, 3, 3)]);
+// let a5 = new Area([new Rect(20, 1, 3, 3)], []);
+let a6 = new Area([new Rect(1, 6, 6, 4)], []);
+let a7 = new Area([new Rect(8, 6, 5, 4)], [])
+let a8 = new Area([new Rect(14, 6, 5, 5)], [])
+let a9 = new Area([new Rect(20, 6, 6, 4)], [])
+let a10 = new Area([new Rect(0, 11, 10, 7)], [])
+let a11 = new Area([new Rect(10, 11, 5, 7)], [])
+let a12 = new Area([new Rect(16, 12, 4, 5)], [])
+let a13 = new Area([new Rect(21, 11, 5, 6)], [])
 
 /* Resources */
-let r1 = randomPoints(a6, 10).sort((a, b) => a.y - b.y);
-let r2 = randomPoints(a5, 20).sort((a, b) => a.y - b.y);
-let r3 = randomPoints(a3, 13).sort((a, b) => a.y - b.y);
-let r4 = randomPoints(a2, 12).sort((a, b) => a.y - b.y);
-let r5 = randomPoints(a4, 12).sort((a, b) => a.y - b.y);
+let r1 = randomPoints(a4, 10)
+let r2 = randomPoints(a13, 20)
+let r3 = randomPoints(a1, 13)
+let r4 = randomPoints(a11, 12)
+let r5 = randomPoints(a8, 12)
 for (let p of r2) p.t = Math.floor(Math.random() * 3)
 
 /* Monster */
-let m2 = randomPoints(a2, 10).sort((a, b) => a.y - b.y);
-let m3 = randomPoints(a3, 10).sort((a, b) => a.y - b.y);
-let m4 = randomPoints(a4, 10).sort((a, b) => a.y - b.y);
-let m5 = randomPoints(a5, 10).sort((a, b) => a.y - b.y);
-let m6 = randomPoints(a6, 10).sort((a, b) => a.y - b.y);
-let m7 = randomPoints(new Area([new Rect(0, 0, scene.width, scene.height)], []), 2).sort((a, b) => a.y - b.y);
-for (let p of m2) p.type = Math.random() < 0.5 ? 1 : 2
-for (let p of m3) p.type = Math.random() < 0.3 ? 2 : 3
-for (let p of m4) p.type = Math.random() < 0.7 ? 4 : 5
-for (let p of m5) p.type = Math.random() < 0.3 ? 4 : 5
-for (let p of m6) p.type = Math.random() < 0.1 ? 5 : 6
+let m1 = randomPoints(a6, 10)
+let m2 = randomPoints(a7, 9)
+let m3 = randomPoints(a12, 8)
+let m4 = randomPoints(a2, 8)
+let m5 = randomPoints(a9, 8)
+let m6 = randomPoints(a3, 8)
+let m7 = new Point(2, 2)
+let m8 = new Point(25, 17)
+let m9 = new Point(22, 2)
+
+
+
+/**
+ * ------------------------------------------------ Effect ------------------------------------------
+ */
+
 
 
 /**
@@ -597,29 +566,32 @@ let testX = 1;
 let testY = 5;
 
 setInterval(() => {
-    // audio2.cloneNode().play(); // 在高速時能重疊撥放
+    // playSound('footstep00.ogg');
 }, 300);
 
 
 document.body.onkeydown = function (e) {
-    // alert(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
-    switch (e.keyCode) {
-        case 37:
+    switch (e.code) {
+        case 'ArrowLeft':
             // camera.x -= 2;
             testX -= 1;
             break;
-        case 38:
+        case 'ArrowUp':
             // camera.y -= 2;
             testY -= 1;
             break;
-        case 39:
+        case 'ArrowRight':
             // camera.x += 2;
             testX += 1;
             break;
-        case 40:
+        case 'ArrowDown':
             // camera.y += 2;
             testY += 1;
             break;
+        case 'KeyA':
+            break;
+        default:
+            console.log(e.code);
     }
 };
 
@@ -706,9 +678,9 @@ function render() {
     drawBuilding(ctx, 2.0, 8, 14, 3.2, imgs.get('building/well.svg'), 0, 0.1, alpha);
 
     // Monster
-    function drawM(x, y, type) {
+    function drawM(x, y, mClass) {
         let rect, callback;
-        switch (type) {
+        switch (mClass) {
             case 1:
                 callback = () => {
                     rect = drawImg(ctx, x, y, imgs.get('monster/snail.svg'), 0.8, 0.02, -0.19);
@@ -753,36 +725,36 @@ function render() {
                 break;
             case 7:
                 callback = () => {
-                    rect = drawImg(ctx, x, y, imgs.get('monster/dinosaur.svg'), 2.0, 0.17, 0.97);
+                    rect = drawImg(ctx, x, y, imgs.get('monster/dinosaur.svg'), 2.3, 0.17, 0.97);
                     drawMonster(ctx, rect, 0.65, 0.7);
                 }
                 drawer.append(x, y, 2, callback)
                 break;
             case 8:
                 callback = () => {
-                    rect = drawImg(ctx, x, y, imgs.get('monster/mummy.svg'), 1.1, 0.07, -0.23);
+                    rect = drawImg(ctx, x, y, imgs.get('monster/mummy.svg'), 1.2, 0.07, -0.23);
                     drawMonster(ctx, rect, -0.31, 0.7);
                 }
                 drawer.append(x, y, 2, callback)
                 break;
             case 9:
                 callback = () => {
-                    rect = drawImg(ctx, x, y, imgs.get('monster/yeti.png'), 2.1, 0.0, -0.1);
+                    rect = drawImg(ctx, x, y, imgs.get('monster/yeti.png'), 2.6, 0.0, -0.1);
                     drawMonster(ctx, rect, -0.41, 0.7);
                 }
                 drawer.append(x, y, 2, callback)
                 break;
         }
     }
-    m2.forEach((m) => drawM(m.x, m.y, m.type))
-    m3.forEach((m) => drawM(m.x, m.y, m.type))
-    m4.forEach((m) => drawM(m.x, m.y, m.type))
-    m5.forEach((m) => drawM(m.x, m.y, m.type))
-    m6.forEach((m) => drawM(m.x, m.y, m.type))
-
-    drawM(m7[0].x, m7[0].y, 7)
-    drawM(m7[1].x, m7[1].y, 8)
-    drawM(21, 2, 9)
+    m1.forEach((m) => drawM(m.x, m.y, 1))
+    m2.forEach((m) => drawM(m.x, m.y, 2))
+    m3.forEach((m) => drawM(m.x, m.y, 3))
+    m4.forEach((m) => drawM(m.x, m.y, 4))
+    m5.forEach((m) => drawM(m.x, m.y, 5))
+    m6.forEach((m) => drawM(m.x, m.y, 6))
+    drawM(m7.x, m7.y, 7)
+    drawM(m8.x, m8.y, 8)
+    drawM(m9.x, m9.y, 9)
 
 
     // Role
