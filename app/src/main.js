@@ -62,35 +62,14 @@ async function loadImg() {
  * ------------------------------------------------ Effect ------------------------------------------
  */
 
-// console.log(view.qw, view.qh)
-// console.log(view.gVertexSpace(0, 0))
-// let qv = view.qVertex;
-// db_ctx.fillRect()
-
-// console.log(view.gVertexSpace(0, 0))
-// console.log(view.gVertexSpace(0, 1))
-
-
 
 //----------------------------------------------------------------------------------------------------
 
 let lastTime = Date.now();
 
 async function init() {
-
     await loadImg();
-
-    // Draw Background
-    drawBG(bg_ctx, imgs.get('grass.jpg'));
-
-    // Draw Grud
-    for (let r = 0; r < view.row; r++) {
-        for (let c = 0; c < view.col; c++) {
-            let gv = view.gVertexSpace(c, r);
-            new DrawGrid(gv[0], gv[1], view.gws).draw(bg_ctx)
-        }
-    }
-
+    initDraw();
 }
 
 function update() {
@@ -102,6 +81,7 @@ function update() {
 // Render
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    db_ctx.clearRect(0, 0, canvas.width, canvas.height);
     testDraw();
 }
 

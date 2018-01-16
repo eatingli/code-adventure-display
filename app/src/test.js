@@ -34,10 +34,6 @@ body.appendChild(db_canvas);
 
 let view = new View(WIDTH, HEIGHT, 26, 18, 2 * 5 * Math.PI / 360, [145, 10, 10, 10], [3, 3, 3, 3]);
 
-// let scene = new Scene(canvas, 26, 18, 2 * 10 * Math.PI / 360);
-let scene = new Scene(canvas, 26, 18, 2 * 5 * Math.PI / 360, [145, 10, 10, 10]);
-let camera = new Camera(0, 0, 1.0);
-
 /*
  * -----------------------------------------------Test Data-----------------------------------------
  */
@@ -50,8 +46,8 @@ function randomPoint(rect) {
 
 // 取得範圍內不重複的隨機座標
 let all = [];
-for (let y = 0; y < view.gh; y++)
-    for (let x = 0; x < view.gw; x++) all.push(new Point(x, y))
+for (let r = 0; r < view.row; r++)
+    for (let c = 0; c < view.col; c++) all.push(new Point(c, r))
 
 function randomPoints(area, num) {
     let rectPoints = all.filter((p) => {
@@ -61,7 +57,6 @@ function randomPoints(area, num) {
             if (p.x >= rect.x && p.y >= rect.y && p.x < rect.x + rect.w && p.y < rect.y + rect.h) return true;
         return false;
     });
-
     if (num > rectPoints.length) throw Error('Not Enough Space')
 
     let result = [];
@@ -153,19 +148,15 @@ setInterval(() => {
 document.body.onkeydown = function (e) {
     switch (e.code) {
         case 'ArrowLeft':
-            // camera.x -= 2;
             testX -= 1;
             break;
         case 'ArrowUp':
-            // camera.y -= 2;
             testY -= 1;
             break;
         case 'ArrowRight':
-            // camera.x += 2;
             testX += 1;
             break;
         case 'ArrowDown':
-            // camera.y += 2;
             testY += 1;
             break;
         case 'KeyA':
@@ -179,33 +170,57 @@ document.body.onkeydown = function (e) {
  * ------------------------------------------------ Test Draw ------------------------------------------
  */
 
-let flag = 0;
+function initDraw() {
+    // Draw Background
+    new DrawBackground(imgs.get('grass.jpg'), view.w, view.h).draw(bg_ctx)
+
+    // Draw Grud
+    for (let r = 0; r < view.row; r++) {
+        for (let c = 0; c < view.col; c++) {
+            let gv = view.gVertexSpace(c, r);
+            new DrawGrid(gv[0], gv[1], view.gws).draw(bg_ctx)
+        }
+    }
+}
 
 function testDraw() {
     let drawer = new Drawer();
 
-    function drawRole1(x, y, color, bag) {
-        drawer.append(x, y, 5, () => {
-            let img1 = imgs.get('role/caveman.svg');
-            let rect1 = view.getImgRect(img1, x, y, 0.6, 0.07, -0.15);
-            new DrawImg(img1, rect1.x, rect1.y, rect1.w, rect1.h, 1.0).draw(ctx);
+    let drawRole = (col, row, color, bag) => {
+        drawer.append(col, row, 5, () => {
 
-            let img2 = imgs.get('role/bag.svg');
-            let rect2 = view.getImgRect(img1, x, y, 0.3, 0.2, -2.05);
-            if (bag)
-                new DrawImg(img2, rect2.x, rect1.y - rect2.h, rect2.w, rect2.h, 1.0).draw(ctx);
-            drawRoleColorIcon(ctx, rect1, color, bag);
+            // Role Img
+            let img = imgs.get('role/caveman.svg');
+            let r = view.getImgRect(img, col, row, 0.6, 0.07, -0.13);
+            new DrawImg(img, r.x, r.y, r.w, r.h, 1.0).draw(ctx);
+
+            // Role Color Icon
+            let w = r.w * 0.44
+            let h = r.w * 0.33;
+            let x = r.x + (r.w - w) * 0.5;
+            let y = r.y - r.h * 0.24;
+            new DrawRoleColerIcon(new Rect(x, y, w, h), color).draw(ctx)
+
+            // Bag
+            if (bag) {
+                let img = imgs.get('role/bag.svg');
+                let rect = view.getImgRect(img, col, row, 0.3, 0.07, -1.83);
+                rect.x = r.x - r.w * 0.3;
+                rect.y = r.y + r.h * 0.65;
+                new DrawImg(img, rect.x, rect.y, rect.w, rect.h, 0.9).draw(ctx);
+            }
+
         })
     }
 
     // Role
     for (let i = 0; i < 12; i++) {
-        drawRole1(points[i].x, points[i].y, colors[i], bags[i]);
+        drawRole(points[i].x, points[i].y, colors[i], bags[i]);
     }
-    drawRole1(testX, testY, colors[0], true)
+    drawRole(testX, testY, colors[0], true)
 
     // Resource
-    function drawR(x, y, rClass) {
+    let drawResource = (x, y, rClass) => {
         let config = ResourceConfigs.get(rClass);
         let img = imgs.get(config.img);
         let rect = view.getImgRect(img, x, y, config.scale, config.h, config.v);
@@ -216,14 +231,14 @@ function testDraw() {
         drawer.append(x, y, 2, callback)
     }
 
-    r1.forEach((p) => drawR(p.x, p.y, 'r1'));
-    r2.forEach((p) => drawR(p.x, p.y, 'r2-' + p.t));
-    r3.forEach((p) => drawR(p.x, p.y, 'r3'));
-    r4.forEach((p) => drawR(p.x, p.y, 'r4'));
-    r5.forEach((p) => drawR(p.x, p.y, 'r5'));
+    r1.forEach((p) => drawResource(p.x, p.y, 'r1'));
+    r2.forEach((p) => drawResource(p.x, p.y, 'r2-' + p.t));
+    r3.forEach((p) => drawResource(p.x, p.y, 'r3'));
+    r4.forEach((p) => drawResource(p.x, p.y, 'r4'));
+    r5.forEach((p) => drawResource(p.x, p.y, 'r5'));
 
     // Monster
-    function drawM(x, y, mClass) {
+    let drawMonster = (x, y, mClass) => {
         let mConfig = MonsterConfigs.get(mClass);
         let img = imgs.get(mConfig.img);
         let rect = view.getImgRect(img, x, y, mConfig.scale, mConfig.h, mConfig.v);
@@ -239,18 +254,18 @@ function testDraw() {
         drawer.append(x, y, 2, callback)
     }
 
-    m1.forEach((m) => drawM(m.x, m.y, 'm1'))
-    m2.forEach((m) => drawM(m.x, m.y, 'm2'))
-    m3.forEach((m) => drawM(m.x, m.y, 'm3'))
-    m4.forEach((m) => drawM(m.x, m.y, 'm4'))
-    m5.forEach((m) => drawM(m.x, m.y, 'm5'))
-    m6.forEach((m) => drawM(m.x, m.y, 'm6'))
-    drawM(m7.x, m7.y, 'm7')
-    drawM(m8.x, m8.y, 'm8')
-    drawM(m9.x, m9.y, 'm9')
+    m1.forEach((m) => drawMonster(m.x, m.y, 'm1'))
+    m2.forEach((m) => drawMonster(m.x, m.y, 'm2'))
+    m3.forEach((m) => drawMonster(m.x, m.y, 'm3'))
+    m4.forEach((m) => drawMonster(m.x, m.y, 'm4'))
+    m5.forEach((m) => drawMonster(m.x, m.y, 'm5'))
+    m6.forEach((m) => drawMonster(m.x, m.y, 'm6'))
+    drawMonster(m7.x, m7.y, 'm7')
+    drawMonster(m8.x, m8.y, 'm8')
+    drawMonster(m9.x, m9.y, 'm9')
 
     // Building
-    function drawB(c, r, bClass) {
+    function drawBuilding(c, r, bClass) {
         let level = 3.2;
         let alpha = 0.9;
         let config = BuildingConfigs.get(bClass);
@@ -260,20 +275,39 @@ function testDraw() {
         new DrawBuilding(drawImg, level).draw(ctx);
     }
 
-    drawB(1, 12, 'b1');
-    drawB(1, 16, 'b2');
-    drawB(5, 16, 'b3');
-    drawB(5, 12, 'b4');
-    drawB(8, 14, 'b5');
-
+    drawBuilding(1, 12, 'b1');
+    drawBuilding(1, 16, 'b2');
+    drawBuilding(5, 16, 'b3');
+    drawBuilding(5, 12, 'b4');
+    drawBuilding(8, 14, 'b5');
 
     drawer.draw();
 
     // Dashboard
     for (let i = 0; i < 12; i++) {
-        drawRoleDashboard(ctx, Math.floor(i / 6), i % 6,
-            levels[i], colors[i], lifes[i], energys[i], exps[i], moneys[i], equips[i]);
+        let r = Math.floor(i / 6);
+        let c = i % 6;
+
+        let space = 5;
+        let h = 65;
+        let w = (view.w - space * 7) / 6;
+        let x = space + (space + w) * c;
+        let y = space + (space + h) * r;
+        let rect = new Rect(x, y, w, h);
+        new DrawRoleDashboard(rect, levels[i], colors[i], lifes[i], energys[i], exps[i], moneys[i], equips[i]).draw(db_ctx);
     }
-    drawResourceDashboard(ctx, 5, 75, 155);
-    drawQuestDashboard(ctx, imgs.get('monster/snail.svg'));
+
+
+    (() => {
+        let rect = new Rect(5, 145, 105, 120);
+        new DrawResourceDashboard(rect, 5, 7, 155,
+            imgs.get('dashboard/iron.svg'), imgs.get('dashboard/wood.svg'), imgs.get('dashboard/bread.svg')).draw(db_ctx);
+    })();
+
+    (() => {
+        let rect = new Rect(5, 270, 105, 95);
+        let targetImg = imgs.get('monster/snail.svg');
+        new DrawQuestDashboard(rect, targetImg).draw(db_ctx)
+    })();
+
 }

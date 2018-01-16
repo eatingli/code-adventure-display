@@ -35,11 +35,20 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     return this;
 }
 
+class DrawBackground {
+    constructor(img, width, height) {
+        this.img = img;
+        this.width = width;
+        this.height = height;
+    }
 
-function drawBG(ctx, img) {
-    ctx.fillStyle = "rgba(255,255,255,0.75)";
-    ctx.drawImage(img, -5, -5, img.width + 5, img.height + 5);
-    ctx.fillRect(0, 0, WIDTH, HEIGHT)
+    update(diff) {}
+
+    draw(ctx) {
+        ctx.fillStyle = "rgba(255,255,255,0.75)";
+        ctx.drawImage(this.img, -5, -5, this.img.width + 5, this.img.height + 5);
+        ctx.fillRect(0, 0, this.width, this.height)
+    }
 }
 
 class DrawGrid {
@@ -70,22 +79,6 @@ class DrawGrid {
         ctx.restore()
     }
 }
-
-class Drawable {
-
-    constructor() {
-
-    }
-
-    update() {
-
-    }
-
-    draw(ctx, view) {
-
-    }
-}
-
 
 class DrawImg {
     constructor(img, x, y, w, h, a) {
@@ -128,26 +121,6 @@ class DrawLife {
         ctx.strokeRect(this.x, this.y, this.w, 4);
     }
 }
-
-// class RoleColerIcon {
-//     constructor() {
-//         color
-//     }
-
-//     update(diff) {}
-
-//     draw(ctx) {
-//         let colorX = bag ? rect.x + rect.w * 0.25 : rect.x + rect.w * 0.5;
-//         let colorY = rect.y - rect.h * 0.2;
-//         ctx.beginPath();
-//         ctx.arc(colorX, colorY, rect.w * 0.22, 0, 2 * Math.PI);
-//         ctx.closePath();
-//         ctx.fillStyle = color;
-//         ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-//         ctx.stroke();
-//         ctx.fill();
-//     }
-// }
 
 class DrawRole {
     // 調用 Draw img
@@ -203,169 +176,188 @@ class DrawBuilding {
     }
 }
 
+class DrawRoleColerIcon {
+    constructor(rect, color) {
+        this.rect = rect;
+        this.color = color;
+    }
 
-function drawRoleColorIcon(ctx, rect, color, bag) {
+    update(diff) {}
 
-    // Color Icon
-    let colorX = bag ? rect.x + rect.w * 0.25 : rect.x + rect.w * 0.5;
-    let colorY = rect.y - rect.h * 0.2;
-    ctx.fillStyle = color;
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-
-    // ctx.beginPath();
-    // ctx.arc(colorX, colorY, rect.w * 0.22, 0, 2 * Math.PI);
-    // ctx.closePath();
-    // ctx.stroke();
-    // ctx.fill();
-    let width = rect.w * 0.44;
-    let height = rect.w * 0.33;
-    let x = rect.x + (rect.w - width) * 0.5;
-    let y = rect.y - rect.h * 0.27
-    if (bag) x -= width * 0.6
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeRect(x, y, width, height);
+    draw(ctx) {
+        let rect = this.rect;
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+    }
 }
 
-// drawRoleDashboard
-function drawRoleDashboard(ctx, row, col, level, color, life, energy, exp, money, equips) {
+class DrawRoleDashboard {
+    constructor(rect, lv, color, life, energy, exp, money, equips) {
+        this.rect = rect;
 
-    let space = 5;
-    let width = (canvas.width - space * 7) / 6;
-    let height = 65;
+        this.lv = lv;
+        this.color = color;
+        this.life = life;
+        this.energy = energy;
+        this.exp = exp;
+        this.money = money;
+        this.equips = equips;
+    }
 
-    let x = space + (space + width) * col;
-    let y = space + (space + height) * row;
+    update() {}
 
-    // 外框
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = "rgba(30, 60, 100, 1)";
-    ctx.strokeRect(x, y, width, height);
+    draw(ctx) {
+        let x = this.rect.x;
+        let y = this.rect.y;
+        let w = this.rect.w;
+        let h = this.rect.h;
 
-    // 等級
-    ctx.save();
-    let levelTxt = `${level}`
-    dynamicFitTextOnCanvas(ctx, '99', 'Comic Sans MS', width * 0.14);
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(255, 0, 0, 0.9)";
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.fillText(levelTxt, x + width * 0.08, y + height * 0.38);
-    ctx.strokeText(levelTxt, x + width * 0.08, y + height * 0.38);
-    ctx.restore();
+        // 外框
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = "rgba(30, 60, 100, 1)";
+        ctx.strokeRect(x, y, w, h);
 
-    // 識別色
-    ctx.fillStyle = color;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.fillRect(x + width * 0.03, y + height * 0.70, width * 0.09, height * 0.22);
-    ctx.strokeRect(x + width * 0.03, y + height * 0.70, width * 0.09, height * 0.22);
-    // ctx.roundRect(x + width * 0.03, y + height * 0.76, width * 0.09, height * 0.15, 1);
-    // ctx.fill();
+        // 等級
+        ctx.save();
+        let levelTxt = `${this.lv}`
+        dynamicFitTextOnCanvas(ctx, '99', 'Comic Sans MS', w * 0.14);
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255, 0, 0, 0.9)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.fillText(levelTxt, x + w * 0.08, y + h * 0.38);
+        ctx.strokeText(levelTxt, x + w * 0.08, y + h * 0.38);
+        ctx.restore();
 
-    // 生命、體力、經驗 條
-    let xOffset = x + width * 0.17;
-    let barWidth = width * 0.4;
-    let barHeight = height * 0.2;
-    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-    ctx.fillRect(xOffset, y + height * 0.1, barWidth * life, barHeight);
-    ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
-    ctx.fillRect(xOffset, y + height * 0.4, barWidth * energy, barHeight);
-    ctx.fillStyle = "rgba(200, 255, 0, 0.5)";
-    ctx.fillRect(xOffset, y + height * 0.7, barWidth * energy, barHeight);
+        // 識別色
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.fillRect(x + w * 0.035, y + h * 0.70, w * 0.09, h * 0.22);
+        ctx.strokeRect(x + w * 0.035, y + h * 0.70, w * 0.09, h * 0.22);
 
-    ctx.strokeStyle = "rgba(230, 230, 230, 0.8)";
-    ctx.strokeRect(xOffset, y + height * 0.1, barWidth, barHeight);
-    ctx.strokeRect(xOffset, y + height * 0.4, barWidth, barHeight);
-    ctx.strokeRect(xOffset, y + height * 0.7, barWidth, barHeight);
+        // 生命、體力、經驗 條
+        let xOffset = x + w * 0.18;
+        let barWidth = w * 0.39;
+        let barHeight = h * 0.2;
+        ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+        ctx.fillRect(xOffset, y + h * 0.1, barWidth * this.life, barHeight);
+        ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
+        ctx.fillRect(xOffset, y + h * 0.4, barWidth * this.energy, barHeight);
+        ctx.fillStyle = "rgba(200, 255, 0, 0.3)";
+        ctx.fillRect(xOffset, y + h * 0.7, barWidth * this.energy, barHeight);
 
-    // Money
-    let tmp = `     ${money}`;
-    let moneyText = '$' + tmp.substr(tmp.length - 4);
-    dynamicFitTextOnCanvas(ctx, 'E', 'Comic Sans MS', width * 0.055);
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "rgba(255, 255, 0, 0.8)";
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
-    moneyText.split('').forEach((t, index) => {
-        ctx.fillText(t, x + width * 0.6 + index * width * 0.08, y + height * 0.30);
-        ctx.strokeText(t, x + width * 0.6 + index * width * 0.08, y + height * 0.30);
-    });
+        ctx.strokeStyle = "rgba(230, 230, 230, 0.8)";
+        ctx.strokeRect(xOffset, y + h * 0.1, barWidth, barHeight);
+        ctx.strokeRect(xOffset, y + h * 0.4, barWidth, barHeight);
+        ctx.strokeRect(xOffset, y + h * 0.7, barWidth, barHeight);
 
-    // Equip
-    let levels = ['E', 'D', 'C', 'B', 'A', 'S'];
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "rgba(255, 200, 100, 0.9)";
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
-    equips.map(e => levels[e]).forEach((eLevel, index) => {
-        ctx.fillText(eLevel, x + width * 0.6 + index * width * 0.08, y + height * 0.77);
-        ctx.strokeText(eLevel, x + width * 0.6 + index * width * 0.08, y + height * 0.77);
+        // Money
+        let tmp = `     ${this.money}`;
+        let moneyText = '$' + tmp.substr(tmp.length - 4);
+        dynamicFitTextOnCanvas(ctx, 'E', 'Comic Sans MS', w * 0.055);
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(255, 255, 0, 0.8)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+        moneyText.split('').forEach((t, index) => {
+            ctx.fillText(t, x + w * 0.6 + index * w * 0.08, y + h * 0.30);
+            ctx.strokeText(t, x + w * 0.6 + index * w * 0.08, y + h * 0.30);
+        });
 
-    });
+        // Equip
+        let levels = ['E', 'D', 'C', 'B', 'A', 'S'];
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(255, 200, 100, 0.9)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+        this.equips.map(e => levels[e]).forEach((eLevel, index) => {
+            ctx.fillText(eLevel, x + w * 0.6 + index * w * 0.08, y + h * 0.77);
+            ctx.strokeText(eLevel, x + w * 0.6 + index * w * 0.08, y + h * 0.77);
 
+        });
+    }
 }
 
-// drawResourceDashboard
-function drawResourceDashboard(ctx, iron, wood, food) {
-    // let x = canvas.width * 0.01;
-    // let y = canvas.height * 0.4;
-    let x = 5;
-    let y = 145;
-    let width = 105;
-    let height = 120;
+class DrawResourceDashboard {
+    constructor(rect, iron, wood, food, ironImg, woodImg, foodImg) {
+        this.rect = rect;
+        this.iron = iron;
+        this.wood = wood;
+        this.food = food;
+        this.ironImg = ironImg;
+        this.woodImg = woodImg;
+        this.foodImg = foodImg;
+    }
 
-    // 外框
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = "rgba(30, 60, 100, 1)";
-    ctx.strokeRect(x, y, width, height);
+    update(diff) {}
 
-    // 圖示
-    let imgWidth = 40;
-    let imgHeight = 40;
-    ctx.drawImage(imgs.get('dashboard/iron.svg'), x - 0, y + 8, 40, 34);
-    ctx.drawImage(imgs.get('dashboard/wood.svg'), x - 1, y + 46, 40, 38);
-    ctx.drawImage(imgs.get('dashboard/bread.svg'), x - 3, y + 83, 44, 42);
+    draw(ctx) {
+        let x = this.rect.x;
+        let y = this.rect.y;
+        let w = this.rect.w;
+        let h = this.rect.h;
 
-    // 數量
-    let ironTxt = `${iron}`;
-    let woodTxt = `${wood}`;
-    let foodTxt = `${food}`;
-    ctx.textBaseline = "top";
-    ctx.fillStyle = "rgba(255, 200, 100, 0.9)";
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
-    dynamicFitTextOnCanvas(ctx, '5', 'Comic Sans MS', 20);
-    ctx.fillText(ironTxt, x + 45 + (3 - ironTxt.length) * 16, y + 10);
-    ctx.strokeText(ironTxt, x + 45 + (3 - ironTxt.length) * 16, y + 10);
-    ctx.fillText(woodTxt, x + 45 + (3 - woodTxt.length) * 16, y + 49);
-    ctx.strokeText(woodTxt, x + 45 + (3 - woodTxt.length) * 16, y + 49);
-    ctx.fillText(foodTxt, x + 45 + (3 - foodTxt.length) * 16, y + 87);
-    ctx.strokeText(foodTxt, x + 45 + (3 - foodTxt.length) * 16, y + 87);
+        // 外框
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = "rgba(30, 60, 100, 1)";
+        ctx.strokeRect(x, y, w, h);
+
+        // 圖示 to do imgs....
+        ctx.drawImage(this.ironImg, x - 0, y + 8, 40, 34);
+        ctx.drawImage(this.woodImg, x - 1, y + 46, 40, 38);
+        ctx.drawImage(this.foodImg, x - 3, y + 83, 44, 42);
+
+        // 數量
+        let ironTxt = `${this.iron}`;
+        let woodTxt = `${this.wood}`;
+        let foodTxt = `${this.food}`;
+        ctx.textBaseline = "top";
+        ctx.fillStyle = "rgba(255, 200, 100, 0.9)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+        dynamicFitTextOnCanvas(ctx, '5', 'Comic Sans MS', 20);
+        ctx.fillText(ironTxt, x + 45 + (3 - ironTxt.length) * 16, y + 10);
+        ctx.strokeText(ironTxt, x + 45 + (3 - ironTxt.length) * 16, y + 10);
+        ctx.fillText(woodTxt, x + 45 + (3 - woodTxt.length) * 16, y + 49);
+        ctx.strokeText(woodTxt, x + 45 + (3 - woodTxt.length) * 16, y + 49);
+        ctx.fillText(foodTxt, x + 45 + (3 - foodTxt.length) * 16, y + 87);
+        ctx.strokeText(foodTxt, x + 45 + (3 - foodTxt.length) * 16, y + 87);
+    }
 }
 
-// drawQuestDashboard
-function drawQuestDashboard(ctx, targetImg) {
+class DrawQuestDashboard {
+    constructor(rect, targetImg) {
+        this.rect = rect;
+        this.targetImg = targetImg;
+    }
 
-    let x = 5;
-    let y = 270;
-    let width = 105;
-    let height = 95;
+    update(diff) {}
 
-    // 外框
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = "rgba(30, 60, 100, 1)";
-    ctx.strokeRect(x, y, width, height);
+    draw(ctx) {
+        let x = this.rect.x;
+        let y = this.rect.y;
+        let w = this.rect.w;
+        let h = this.rect.h;
 
-    // Quest Text
-    let questTxt = 'Quest';
-    dynamicFitTextOnCanvas(ctx, questTxt, 'Comic Sans MS', width * 0.7);
-    ctx.textBaseline = "hanging";
-    ctx.fillStyle = "rgba(255, 200, 100, 0.9)";
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.fillText(questTxt, x + width * 0.15, y + 2);
-    ctx.strokeText(questTxt, x + width * 0.15, y + 2);
+        // 外框
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = "rgba(30, 60, 100, 1)";
+        ctx.strokeRect(x, y, w, h);
 
-    // Quest Target
-    let imgWidth = 65;
-    let imgHeight = targetImg.height * imgWidth / targetImg.width;
-    ctx.drawImage(targetImg, x + (width - imgWidth) * 0.5, y + 45, imgWidth, imgHeight);
+        // Quest Text
+        let questTxt = 'Quest';
+        dynamicFitTextOnCanvas(ctx, questTxt, 'Comic Sans MS', w * 0.7);
+        ctx.textBaseline = "hanging";
+        ctx.fillStyle = "rgba(255, 200, 100, 0.9)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillText(questTxt, x + w * 0.15, y + 2);
+        ctx.strokeText(questTxt, x + w * 0.15, y + 2);
+
+        // Quest Target
+        let imgWidth = 65;
+        let imgHeight = this.targetImg.height * imgWidth / this.targetImg.width;
+        ctx.drawImage(this.targetImg, x + (w - imgWidth) * 0.5, y + 45, imgWidth, imgHeight);
+    }
 }
