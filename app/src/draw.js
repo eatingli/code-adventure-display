@@ -42,18 +42,24 @@ function drawBG(ctx, img) {
     ctx.fillRect(0, 0, WIDTH, HEIGHT)
 }
 
-function drawGrid(ctx) {
-    let padding = scene.width * 0.05;
+class DrawGrid {
+    constructor(lt, lb, gw) {
+        this.lt = lt;
+        this.lb = lb;
+        this.gw = gw;
+    }
 
-    function grid(x, y) {
-        let p1 = camera.view(scene.lattice(new Point(x, y)));
-        let p2 = camera.view(scene.lattice(new Point(x, y + 1)));
+    update(diff) {
+
+    }
+
+    draw(ctx) {
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(p1.x + padding, p1.y + padding);
-        ctx.lineTo(p1.x + scene.width - padding, p1.y + padding);
-        ctx.lineTo(p2.x + scene.width - padding, p2.y - padding);
-        ctx.lineTo(p2.x + padding, p2.y - padding);
+        ctx.moveTo(this.lt.x + this.gw, this.lt.y);
+        ctx.lineTo(this.lt.x, this.lt.y);
+        ctx.lineTo(this.lb.x, this.lb.y);
+        ctx.lineTo(this.lb.x + this.gw, this.lb.y);
         ctx.closePath();
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
@@ -63,13 +69,8 @@ function drawGrid(ctx) {
         ctx.fill();
         ctx.restore()
     }
-
-    for (let y = 0; y < scene.row; y++) {
-        for (let x = 0; x < scene.col; x++) {
-            grid(x, y);
-        }
-    }
 }
+
 class Drawable {
 
     constructor() {
@@ -147,6 +148,61 @@ class DrawLife {
 //         ctx.fill();
 //     }
 // }
+
+class DrawRole {
+    // 調用 Draw img
+}
+
+class DrawBuilding {
+
+    constructor(drawImg, level) {
+
+        this.maxLevel = 5;
+        this.drawImg = drawImg;
+
+        if (level > this.maxLevel) level = this.maxLevel;
+        this.lv = Math.floor(level);
+        this.exp = level - this.lv;
+    }
+
+    update() {}
+
+    draw(ctx) {
+
+        // img
+        this.drawImg.draw(ctx);
+
+        let space = 5;
+        let h = 5;
+        let width = this.drawImg.w;
+        let rx = this.drawImg.x;
+        let ry = this.drawImg.y;
+
+        // lv
+        ctx.fillStyle = "rgba(00, 180, 255, 0.8)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+
+        let w = (width - (this.maxLevel - 1) * space) / this.maxLevel;
+        for (let i = 0; i < this.maxLevel; i++) {
+            let x = rx + (w + space) * i;
+            let y = ry;
+            if (i < this.lv) ctx.fillRect(x, y, w, h);
+            ctx.strokeRect(x, y, w, h);
+        }
+
+        // exp
+        ctx.fillStyle = "rgba(255, 255, 0, 0.8)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+        if (this.exp > 0) {
+            let x = rx;
+            let y = ry + 10;
+            let w = width * this.exp;
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeRect(x, y, width, h);
+        }
+    }
+}
+
 
 function drawRoleColorIcon(ctx, rect, color, bag) {
 
@@ -312,52 +368,4 @@ function drawQuestDashboard(ctx, targetImg) {
     let imgWidth = 65;
     let imgHeight = targetImg.height * imgWidth / targetImg.width;
     ctx.drawImage(targetImg, x + (width - imgWidth) * 0.5, y + 45, imgWidth, imgHeight);
-}
-
-// drawBuilding
-function drawBuilding(ctx, scale, x, y, level, img, offsetH, offsetV, alpha) {
-    let width = scene.width * scale;
-    let height = img.height * width / img.width;
-
-    let paddingX = scene.width * offsetH;
-    let paddingY = scene.height * offsetV;
-
-    let p = camera.view(scene.lattice(new Point(x, y + 1))); // 用下邊來對準
-    let rx = p.x - width * 0.5 + scene.width * 0.5 + paddingX;
-    let ry = p.y - height + paddingY;
-
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(img, rx, ry, width, height);
-    ctx.restore()
-
-    // level
-    let MAX_LEVEL = 5;
-    if (level > MAX_LEVEL) level = MAX_LEVEL;
-    let lv = Math.floor(level);
-    let exp = level - lv;
-
-    ctx.fillStyle = "rgba(00, 180, 255, 0.8)";
-    ctx.strokeStyle = "rgba(0, 0, 0, 1)";
-
-    let space = 5;
-    let w = (width - (MAX_LEVEL - 1) * space) / MAX_LEVEL;
-    let h = 5;
-    for (let i = 0; i < MAX_LEVEL; i++) {
-        let x = rx + (w + space) * i;
-        let y = ry;
-        if (i < level - 1) ctx.fillRect(x, y, w, h);
-        ctx.strokeRect(x, y, w, h);
-    }
-
-    ctx.fillStyle = "rgba(255, 255, 0, 0.8)";
-    ctx.strokeStyle = "rgba(0, 0, 0, 1)";
-
-    if (exp > 0) {
-        let x = rx;
-        let y = ry + 10;
-        let w = width * exp;
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeRect(x, y, width, h);
-    }
 }

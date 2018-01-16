@@ -62,30 +62,70 @@ class Scene {
 }
 
 class View {
-    constructor(width, height, col, row, theta, margin) {
+    constructor(width, height, col, row, theta, margin, space) {
         this.w = width;
         this.h = height;
         this.col = col;
         this.row = row;
         this.theta = theta;
-        this.margin = margin || [0, 0, 0, 0]; // Top, Right, Bottom, Left
+        this.margin = margin = margin || [0, 0, 0, 0]; // 四邊形離外框距離：Top, Right, Bottom, Left
+        this.space = space = space || [0, 0, 0, 0]; // 格子之間距離：Top, Right, Bottom, Left
 
-        let tanWidth = width - height * Math.tan(theta); // 傾斜
-        this.grid = {
-            w: (tanWidth - this.margin[1] - this.margin[3]) / col,
-            h: (height - this.margin[0] - this.margin[2]) / row,
-        }
+        // 四邊形寬高
+        this.qh = height - margin[0] - margin[2];
+        this.offsetW = this.qh * Math.tan(theta);
+        this.qw = width - margin[1] - margin[3] - this.offsetW;
+
+        // 四邊形頂點：左上 左下
+        let lt = new Point(margin[3] + this.offsetW, margin[0]);
+        let lb = new Point(margin[3], margin[0] + this.qh);
+        this.qVertex = [lt, lb]
+
+        // 格子寬高 (未計算間距)
+        this.gw = this.qw / col;
+        this.gh = this.qh / row;
+
+        // 格子寬高 (已計算間距)
+        this.gws = this.qw / col - space[1] - space[3];
+        this.ghs = this.qh / row - space[0] - space[2];
+
     }
 
     /**
-     * 取得頂點 (左下角)
+     * 取得整個四邊形頂點 (左上, 右上, 左下, 右下)
      */
-    vertex(p) {
-        // console.log(p);
-        let offsetH = Math.tan(this.theta) * this.h * (this.row - (p.y + 1)) / this.row;
-        let px = this.margin[3] + offsetH + this.grid.w * p.x;
-        let py = this.margin[0] + this.grid.h * (p.y + 1);
-        return new Point(px, py);
+    // qVertex() {
+    //     let p1 = new Point(this.margin[3] + )
+    // }
+
+    /**
+     * 取得格子頂點(未計算間距) (左上, 左下)
+     */
+    gVertex(c, r) {
+        let offsetGw = this.offsetW / this.col;
+
+        let qv = this.qVertex[0];
+        let ltx = qv.x + c * this.qw / this.col - offsetGw * r; // 起點 + 格數 - 位移 
+        let lty = qv.y + r * this.qh / this.row; // 起點 + 格數
+        let lt = new Point(ltx, lty);
+        let lbx = ltx - offsetGw;
+        let lby = lty + this.gh;
+        let lb = new Point(lbx, lby);
+
+        return [lt, lb];
+    }
+
+    /**
+     * 取得格子頂點(已計算間距) (左上, 左下)
+     */
+    gVertexSpace(c, r) {
+        let gv = this.gVertex(c, r);
+        gv[0].x = gv[0].x + this.space[3]
+        gv[0].y = gv[0].y + this.space[0]
+        gv[1].x = gv[1].x + this.space[3]
+        gv[1].y = gv[1].y - this.space[2]
+        return gv
+        // return {};
     }
 
     // /**
@@ -104,21 +144,21 @@ class View {
      * @param {number} h 
      * @param {number} v 
      */
-    getImgRect(img, px, py, scale, h, v) {
-        if (img === undefined || px === undefined || py === undefined) throw new Error('getRect() prams error');
+    getImgRect(img, c, r, scale, h, v) {
+        if (img === undefined || c === undefined || r === undefined) throw new Error('getRect() prams error');
         scale = scale || 1.0;
         h = h || 0.0;
         v = v || 0.0;
 
-        let width = this.grid.w * scale;
+        let width = this.gw * scale;
         let height = img.height * width / img.width;
 
-        let paddingX = this.grid.w * h;
-        let paddingY = this.grid.h * v;
+        let paddingX = this.gw * h;
+        let paddingY = this.gh * v;
 
-        let pixel = this.vertex(new Point(px, py));
-        let x = pixel.x - (width - this.grid.w) * 0.5 + paddingX;
-        let y = pixel.y - height + paddingY;
+        let lb = this.gVertex(c, r)[1]; // 左下
+        let x = lb.x - (width - this.gw) * 0.5 + paddingX;
+        let y = lb.y - height + paddingY;
         return new Rect(x, y, width, height);
     }
 }
@@ -278,5 +318,30 @@ class Layer {
             ctx.fillRect(x, y, w, h);
             ctx.strokeRect(x, y, width, h);
         }
+    }
+}
+
+class Drawer {
+    constructor() {
+        this.list = [];
+    }
+
+    append(x, y, z, callback) {
+        this.list.push({
+            x: x,
+            y: y,
+            z: z,
+            callback: callback
+        })
+    }
+
+    draw() {
+        this.list
+            .sort((a, b) => a.x - b.x)
+            .sort((a, b) => a.y - b.y)
+            .sort((a, b) => a.x == b.x && a.y == b.y ? a.z - b.z : 0)
+            .forEach((obj) => {
+                obj.callback();
+            })
     }
 }

@@ -38,6 +38,7 @@ imgSrcs.push('monster/yeti.png')
 
 imgSrcs.push('effect/explosion.svg')
 
+
 /**
  * 
  */
@@ -99,5 +100,5 @@ let BuildingConfigs = new Map();
 BuildingConfigs.set('b1', new BuildingConfig('building/house.svg', 2.5, 0, 0.1))
 BuildingConfigs.set('b2', new BuildingConfig('building/warehouse.svg', 2.5, 0, 1.0))
 BuildingConfigs.set('b3', new BuildingConfig('building/mine.svg', 2.5, 0.05, 0.75))
-BuildingConfigs.set('b4', new BuildingConfig('building/farm.svg', 2.7, 0, 0.9))
+BuildingConfigs.set('b4', new BuildingConfig('building/farm.svg', 2.7, 0.05, 1.2))
 BuildingConfigs.set('b5', new BuildingConfig('building/well.svg', 2.0, 0, 0.1))
