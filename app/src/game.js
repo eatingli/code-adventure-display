@@ -71,28 +71,3 @@ class Media {
     }, 500);
 })();
 
-
-
-// drawBackground() {
-
-// }
-
-// drawGrid() {
-
-// }
-
-// drawDashboard() {
-
-// }
-
-// drawRole() {
-
-// }
-
-// drawMonster() {
-
-// }
-
-// drawResource() {
-
-// }

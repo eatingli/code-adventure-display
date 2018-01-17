@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="640" height="480" version="1.1" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <filter id="c" x="-.23752" y="-.18503" width="1.475" height="1.3701">
+   <feGaussianBlur stdDeviation="6.9734201"/>
+  </filter>
+  <filter id="d" x="-.086268" y="-.55827" width="1.1725" height="2.1165">
+   <feGaussianBlur stdDeviation="6.0810344"/>
+  </filter>
+ </defs>
+ <g transform="matrix(1.2306 0 0 1.2308 -21.728 -14.111)" stroke-width="0">
+  <rect transform="matrix(0 -1.0574 1.0486 .019845 -4.9672 -16.075)" x="-316.4" y="107.27" width="22.723" height="170.57" filter="url(#d)" opacity=".35398"/>
+  <rect transform="matrix(0 -1.0574 .79736 -.68685 -4.9672 -16.075)" x="-562.34" y="368.65" width="22.22" height="70.797" filter="url(#c)" opacity=".35398"/>
+ </g>
+ <rect transform="matrix(.99972 .023741 0 1 0 0)" x="110.28" y="154.87" width="215.83" height="209.9" fill="#c90" stroke="#372600" stroke-linejoin="round" stroke-opacity=".14815" stroke-width="4.0886"/>
+ <rect transform="matrix(.99972 .023741 0 1 0 0)" x="110.28" y="154.87" width="35.382" height="209.9" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.0886"/>
+ <rect transform="matrix(0 1 -.99972 -.023741 0 0)" x="155.34" y="-324.93" width="35.376" height="214.65" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.0886"/>
+ <rect transform="matrix(-.99972 -.023741 0 -1 0 0)" x="-327.29" y="-364.76" width="35.382" height="209.9" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.0886"/>
+ <rect transform="matrix(.67913 -.73402 0 1 0 0)" x="479.11" y="519.67" width="100.28" height="205.25" fill="#c90" stroke="#372600" stroke-linejoin="round" stroke-opacity=".14815" stroke-width="4.9606"/>
+ <rect transform="matrix(.67913 -.73402 0 1 0 0)" x="479.11" y="519.67" width="16.439" height="205.25" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.9606"/>
+ <rect transform="matrix(0 1 -.67913 .73402 0 0)" x="520.13" y="-578.84" width="34.593" height="99.732" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.9606"/>
+ <rect transform="matrix(-.67913 .73402 0 -1 0 0)" x="-579.94" y="-724.92" width="16.439" height="205.25" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.9606"/>
+ <rect transform="matrix(-.99972 -.023775 -.67794 .73512 0 0)" x="-469.55" y="112.46" width="219.74" height="93.143" fill="#c90" stroke="#372600" stroke-linejoin="round" stroke-opacity=".14815" stroke-width="4.7172"/>
+ <rect transform="matrix(-.99972 -.023775 -.67794 .73512 0 0)" x="-469.55" y="112.46" width="36.024" height="93.143" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.7172"/>
+ <rect transform="matrix(-.67794 .73512 .99972 .023775 0 0)" x="112.67" y="251.01" width="15.698" height="218.54" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.7172"/>
+ <rect transform="matrix(.99972 .023775 .67794 -.73512 0 0)" x="248.61" y="-205.6" width="36.024" height="93.143" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.7172"/>
+ <rect transform="matrix(.67794 -.73512 -.99972 -.023775 0 0)" x="-205.6" y="-466.31" width="15.698" height="213.74" fill="#ff9" opacity=".35398" stroke="#fff" stroke-linejoin="round" stroke-opacity=".74074" stroke-width="4.7172"/>
+ <path d="m252.62 92.938-41.715 60.888v215.36" fill="none" stroke="#9d6c12" stroke-opacity=".40212" stroke-width="6.5"/>
+</svg>

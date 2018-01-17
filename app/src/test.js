@@ -27,8 +27,8 @@ canvas.height = HEIGHT;
 // Append
 let body = document.getElementsByTagName('body')[0];
 body.appendChild(bg_canvas);
-body.appendChild(ef_canvas);
 body.appendChild(canvas);
+body.appendChild(ef_canvas);
 body.appendChild(db_canvas);
 
 
@@ -131,6 +131,12 @@ let m7 = new Point(2, 2)
 let m8 = new Point(25, 17)
 let m9 = new Point(22, 2)
 
+/**
+ * Test Sound
+ */
+function playSound(sound) {
+    sound.cloneNode().play(); // 在高速時能重疊撥放
+}
 
 /**
  * ------------------------------------------------ Test Interval ------------------------------------------
@@ -148,19 +154,60 @@ setInterval(() => {
 document.body.onkeydown = function (e) {
     switch (e.code) {
         case 'ArrowLeft':
+            efm.add(ef.pace(testX, testY))
+            playSound(sounds.get('footstep.ogg'))
             testX -= 1;
             break;
         case 'ArrowUp':
+            efm.add(ef.pace(testX, testY));
+            playSound(sounds.get('footstep.ogg'))
             testY -= 1;
             break;
         case 'ArrowRight':
+            efm.add(ef.pace(testX, testY));
+            playSound(sounds.get('footstep.ogg'))
             testX += 1;
             break;
         case 'ArrowDown':
+            efm.add(ef.pace(testX, testY));
+            playSound(sounds.get('footstep.ogg'))
             testY += 1;
             break;
         case 'KeyA':
+            efm.add(ef.explosion(testX, testY));
+            playSound(sounds.get('hit.wav'))
             break;
+        case 'KeyB':
+            efm.add(ef.build(testX, testY));
+            playSound(sounds.get('hammer.wav'))
+            break;
+        case 'KeyC':
+            efm.add(ef.collect(testX, testY));
+            playSound(sounds.get('metalClick.ogg'))
+            break;
+        case 'KeyD':
+            efm.add(ef.upgrade(testX, testY));
+            break;
+        case 'KeyE':
+            efm.add(ef.delay(testX, testY, 3000));
+            break;
+        case 'KeyH':
+            efm.add(ef.hello(testX, testY));
+            break;
+        case 'KeyT':
+            efm.add(ef.trade(testX, testY));
+            break;
+        case 'KeyS':
+            efm.add(ef.sleep(testX, testY));
+            break;
+        case 'KeyW':
+            efm.add(ef.carry(testX, testY));
+            break;
+        case 'KeyZ':
+            efm.add(ef.forbid(testX, testY));
+            break;
+
+
         default:
             console.log(e.code);
     }
@@ -184,6 +231,8 @@ function initDraw() {
 }
 
 function testDraw() {
+
+    // Drawer 根據座標來排序物件
     let drawer = new Drawer();
 
     let drawRole = (col, row, color, bag) => {
@@ -191,7 +240,7 @@ function testDraw() {
 
             // Role Img
             let img = imgs.get('role/caveman.svg');
-            let r = view.getImgRect(img, col, row, 0.6, 0.07, -0.13);
+            let r = view.gImgRect(img, col, row, 0.6, 0.07, -0.13);
             new DrawImg(img, r.x, r.y, r.w, r.h, 1.0).draw(ctx);
 
             // Role Color Icon
@@ -204,7 +253,7 @@ function testDraw() {
             // Bag
             if (bag) {
                 let img = imgs.get('role/bag.svg');
-                let rect = view.getImgRect(img, col, row, 0.3, 0.07, -1.83);
+                let rect = view.gImgRect(img, col, row, 0.3, 0.07, -1.83);
                 rect.x = r.x - r.w * 0.3;
                 rect.y = r.y + r.h * 0.65;
                 new DrawImg(img, rect.x, rect.y, rect.w, rect.h, 0.9).draw(ctx);
@@ -223,7 +272,7 @@ function testDraw() {
     let drawResource = (x, y, rClass) => {
         let config = ResourceConfigs.get(rClass);
         let img = imgs.get(config.img);
-        let rect = view.getImgRect(img, x, y, config.scale, config.h, config.v);
+        let rect = view.gImgRect(img, x, y, config.scale, config.h, config.v);
 
         let callback = () => {
             new DrawImg(img, rect.x, rect.y, rect.w, rect.h, 0.9).draw(ctx);
@@ -241,7 +290,7 @@ function testDraw() {
     let drawMonster = (x, y, mClass) => {
         let mConfig = MonsterConfigs.get(mClass);
         let img = imgs.get(mConfig.img);
-        let rect = view.getImgRect(img, x, y, mConfig.scale, mConfig.h, mConfig.v);
+        let rect = view.gImgRect(img, x, y, mConfig.scale, mConfig.h, mConfig.v);
         let vOffset = rect.y + view.gh * mConfig.lifeOffset;
 
         let alpha = 1.0
@@ -270,7 +319,7 @@ function testDraw() {
         let alpha = 0.9;
         let config = BuildingConfigs.get(bClass);
         let img = imgs.get(config.img);
-        let rect = view.getImgRect(img, c, r, config.scale, config.h, config.v);
+        let rect = view.gImgRect(img, c, r, config.scale, config.h, config.v);
         let drawImg = new DrawImg(img, rect.x, rect.y, rect.w, rect.h, alpha)
         new DrawBuilding(drawImg, level).draw(ctx);
     }

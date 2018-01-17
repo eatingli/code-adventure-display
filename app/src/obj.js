@@ -98,9 +98,20 @@ class View {
     }
 
     /**
+     * 取得已格子為準的圖片縮放
+     */
+    gImgScale(img, scale) {
+        if (img === undefined || scale === undefined) throw new Error('gImgScale() prams error');
+
+        let w = this.gw * scale;
+        let h = img.height * w / img.width;
+        return new Rect(0, 0, w, h)
+    }
+
+    /**
      * 取得格子為準的Rect
      */
-    getImgRect(img, c, r, scale, h, v) {
+    gImgRect(img, c, r, scale, h, v) {
         if (img === undefined || c === undefined || r === undefined) throw new Error('getRect() prams error');
         scale = scale || 1.0;
         h = h || 0.0;
@@ -117,6 +128,19 @@ class View {
         let y = lb.y - height + paddingY;
         return new Rect(x, y, width, height);
     }
+
+    /**
+     * 取得格子的中心座標 (H:水平平移 V:垂直平移)
+     */
+    gCenter(c, r, h, v) {
+        if (!h) h = 0.0;
+        if (!v) v = 0.0;
+        let gv = this.gVertex(c, r);
+        let x = (gv[1].x + (gv[0].x + this.gw)) * 0.5 + this.gw * h; // 平均 + 平移
+        let y = gv[0].y + this.gh * 0.5 + this.gh * v;
+        return new Point(x, y);
+    }
+
 }
 
 class Layer {
