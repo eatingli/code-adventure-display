@@ -152,7 +152,7 @@ class DrawBuilding {
         let ry = this.drawImg.y;
 
         // lv
-        ctx.fillStyle = "rgba(00, 180, 255, 0.8)";
+        ctx.fillStyle = "rgba(0, 180, 255, 0.8)";
         ctx.strokeStyle = "rgba(0, 0, 0, 1)";
 
         let w = (width - (this.maxLevel - 1) * space) / this.maxLevel;
@@ -166,7 +166,7 @@ class DrawBuilding {
         // exp
         ctx.fillStyle = "rgba(255, 255, 0, 0.8)";
         ctx.strokeStyle = "rgba(0, 0, 0, 1)";
-        if (this.exp > 0) {
+        if (true) {
             let x = rx;
             let y = ry + 10;
             let w = width * this.exp;

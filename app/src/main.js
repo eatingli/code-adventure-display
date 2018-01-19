@@ -9,6 +9,39 @@ window.requestAnimFrame = (function () {
 })();
 
 /**
+ * Canvas
+ */
+// const WIDTH = window.innerWidth;
+// const HEIGHT = window.innerHeight;
+
+// Create
+let db_canvas = document.createElement("canvas")
+let db_ctx = db_canvas.getContext("2d");
+let bg_canvas = document.createElement("canvas")
+let bg_ctx = bg_canvas.getContext("2d");
+let ef_canvas = document.createElement("canvas")
+let ef_ctx = ef_canvas.getContext("2d");
+let canvas = document.createElement("canvas")
+let ctx = canvas.getContext("2d");
+
+// resize
+db_canvas.width = WIDTH;
+db_canvas.height = HEIGHT;
+bg_canvas.width = WIDTH;
+bg_canvas.height = HEIGHT;
+ef_canvas.width = WIDTH;
+ef_canvas.height = HEIGHT;
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
+
+// Append
+let body = document.getElementsByTagName('body')[0];
+body.appendChild(bg_canvas);
+body.appendChild(canvas);
+body.appendChild(ef_canvas);
+body.appendChild(db_canvas);
+
+/**
  * ------------------------------------------------ Effect ------------------------------------------
  */
 

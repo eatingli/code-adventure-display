@@ -1,6 +1,7 @@
 # Code Adventure Display
 
 Code Adventure Display
+建議使用 Firefox
 
 ## State & Event
 
@@ -8,35 +9,37 @@ State & Event
 
 ## State
 
-- [Role]     Id, Level, Life, Energy, Exp, Money, Equip, Point, Bag, Delay
-- [Monster]  Id, Class, Life, Point
-- [Resource] Id, Class, Point
-- [Building] Id, Class, Point
-- [Storage]  Iron, Wood, Food
-- [Quest]    Target
+c 表示類別
+
+- `Role`     id, x, y, level, maxLife, life, energy, exp, money, equip, bag, rest
+- `Monster`  id, x, y, c, maxLife, life
+- `Resource` id, x, y, c
+- `Building` id, x, y, c, level, maxExp, exp
+- `Storage`  iron, wood, food
+- `Quest`    target
 
 ## Event
 
 ### Player
 
-- [Move]     rId, rState
-- [Atk]      rId, mId, rState, mState
-- [Collect]  rId, resId, rState, storageState
-- [Build]    rId, bId, rState, bState
-- [Sleep]    rId, rState
-- [Upgrade]  rId, rState
-- [Carry]    rId, rState, storageState
-- [Trade]    rId, rState, storageState
-- [Hello]    rId
-- [Forbid]   rId
+- `Move`     rId, rState
+- `Atk`      rId, rState, mId, mState
+- `Collect`  rId, rState, resId, storageState
+- `Build`    rId, rState, bId, bState
+- `Sleep`    rId, rState
+- `Upgrade`  rId, rState
+- `Carry`    rId, rState, storageState
+- `Trade`    rId, rState, storageState
+- `Hello`    rId, rState
+- `Forbid`   rId, rState
 
 ### System
 
-- [Monster Gen]  mId, mState
-- [Resource Gen] resId, rState
-- [Quest Update] target
-- [Money] rId, rState
-- [Resource] storageState
+- `Monster Gen`  mId, mState
+- `Resource Gen` resId, rState
+- `Quest Update` target
+- `Money`        rId, rState
+- `Resource`     storageState
 
 
 # 資源
