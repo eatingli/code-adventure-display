@@ -188,7 +188,7 @@ class TestDate {
         m3.forEach((p) => this.addMonster(3, p))
         m4.forEach((p) => this.addMonster(4, p))
         m5.forEach((p) => this.addMonster(5, p))
-        m6.forEach((p) => data.addMonster(6, p))
+        m6.forEach((p) => this.addMonster(6, p))
         this.addMonster(7, m7)
         this.addMonster(8, m8)
         this.addMonster(9, m9)
